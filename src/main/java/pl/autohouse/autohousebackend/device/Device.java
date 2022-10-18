@@ -2,17 +2,20 @@ package pl.autohouse.autohousebackend.device;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import pl.autohouse.autohousebackend.room.Room;
 
 import javax.persistence.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(
         name = "tbl_device",
-        uniqueConstraints = @UniqueConstraint(name="pinAddress_unique", columnNames = "pin_address")
+        uniqueConstraints = @UniqueConstraint(name = "pinAddress_unique", columnNames = "pin_address")
 )
 public class Device {
 
@@ -35,7 +38,7 @@ public class Device {
     @Transient
     private Boolean status = false;
 
-    @Column(name ="pin_address")
+    @Column(name = "pin_address")
     @NonNull
     private Integer pinAddress;
 
@@ -43,7 +46,7 @@ public class Device {
     private Long roomId;
 
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "room_id",
             referencedColumnName = "roomId",

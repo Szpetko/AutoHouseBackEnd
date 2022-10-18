@@ -13,17 +13,27 @@ public class RoomController {
     private final RoomService roomService;
 
     @Autowired
-    public RoomController(RoomService roomService){
+    public RoomController(RoomService roomService) {
         this.roomService = roomService;
     }
 
     @GetMapping
-    public List<Room> getDevice(){
+    public List<Room> getDevice() {
         return roomService.getDevice();
     }
 
     @PostMapping
-    public void addNewDevice(@RequestBody Room room){
+    public void addNewDevice(@RequestBody Room room) {
         roomService.addNewDevice(room);
+    }
+
+    @PatchMapping("/{roomId}")
+    public void updateRoom(@PathVariable Long roomId, @RequestBody Room updatedRoom){
+        roomService.updateRoom(roomId, updatedRoom);
+    }
+
+    @DeleteMapping("/{roomId}")
+    public void deleteRoom(@PathVariable Long roomId){
+        roomService.deleteRoom(roomId);
     }
 }

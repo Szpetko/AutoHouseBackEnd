@@ -13,18 +13,27 @@ public class DeviceController {
     private final DeviceService deviceService;
 
     @Autowired
-    public DeviceController(DeviceService deviceService){
+    public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
     @GetMapping
-    public List<Device> getDevice(){
+    public List<Device> getDevice() {
         return deviceService.getDevice();
     }
 
     @PostMapping
-    public void addNewDevice(@RequestBody Device device){
+    public void addNewDevice(@RequestBody Device device) {
         deviceService.addNewDevice(device);
     }
 
+    @PatchMapping("/{deviceId}")
+    public void updateDevice(@PathVariable Long deviceId, @RequestBody Device updatedDevice){
+        deviceService.updateDevice(deviceId, updatedDevice);
+    }
+
+    @DeleteMapping("/{deviceId}")
+    public void deleteDevice(@PathVariable Long deviceId){
+        deviceService.deleteDevice(deviceId);
+    }
 }
