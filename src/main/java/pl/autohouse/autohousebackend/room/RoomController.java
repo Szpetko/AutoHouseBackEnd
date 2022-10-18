@@ -18,8 +18,13 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<Room> getDevice() {
-        return roomService.getDevice();
+    public List<Room> getRoom() {
+        return roomService.getRoom();
+    }
+
+    @GetMapping("/{roomId}")
+    public Object getRoomById(@PathVariable Long roomId){
+        return roomService.getRoomById(roomId);
     }
 
     @PostMapping

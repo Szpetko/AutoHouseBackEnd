@@ -24,9 +24,15 @@ public class RoomService {
 
 
     //Getting all Rooms and returns a List
-    public List<Room> getDevice() {
+    public List<Room> getRoom() {
         return roomRepository.findAll();
     }
+
+    //Getting Room by ID
+    public Object getRoomById(Long roomId) {
+        return roomRepository.findById(roomId);
+    }
+
 
     //Adds new Room
     public void addNewDevice(Room room) {
@@ -38,8 +44,8 @@ public class RoomService {
         roomRepository.save(room);
     }
 
-
     //Delete Room by id
+
     public void deleteRoom(Long roomId) {
 
         //Check if Room exists
@@ -48,8 +54,8 @@ public class RoomService {
         roomRepository.deleteById(roomId);
     }
 
-
     //Updating Room by id
+
     @Transactional
     public void updateRoom(Long roomId, Room updatedRoom) {
         Room room = roomRepository.findById(roomId)
@@ -72,8 +78,8 @@ public class RoomService {
 
     }
 
-
     //Check if Room exists
+
     @SneakyThrows
     public void checkIfRoomExist(Long roomId){
 
@@ -82,8 +88,8 @@ public class RoomService {
             throw new IllegalAccessException("This Room does not exist");
         }
     }
-
     //Check for repeats in Name
+
     @SneakyThrows
     public void checkIllegalRepeatsInName(String name){
 
@@ -97,6 +103,5 @@ public class RoomService {
             throw new IllegalAccessException("This Room Name is already in use");
         }
     }
-
 
 }

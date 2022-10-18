@@ -3,7 +3,6 @@ package pl.autohouse.autohousebackend.device;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.autohouse.autohousebackend.room.Room;
 import pl.autohouse.autohousebackend.room.RoomRepository;
 
 import javax.transaction.Transactional;
@@ -27,6 +26,11 @@ public class DeviceService {
     //Getting all Devices and returns List
     public List<Device> getDevice() {
         return deviceRepository.findAll();
+    }
+
+    //Getting Device by ID
+    public Object getDeviceById(Long deviceId) {
+        return deviceRepository.findById(deviceId);
     }
 
     //Adds new Device
@@ -181,4 +185,7 @@ public class DeviceService {
             throw new IllegalAccessException("Device with id "+ deviceId +" does not exist");
         }
     }
+
+
+
 }

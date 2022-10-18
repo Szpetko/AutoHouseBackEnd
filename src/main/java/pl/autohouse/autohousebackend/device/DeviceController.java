@@ -22,6 +22,11 @@ public class DeviceController {
         return deviceService.getDevice();
     }
 
+    @GetMapping("/{deviceId}")
+    public Object getDeviceById(@PathVariable Long deviceId){
+        return deviceService.getDeviceById(deviceId);
+    }
+
     @PostMapping
     public void addNewDevice(@RequestBody Device device) {
         deviceService.addNewDevice(device);
