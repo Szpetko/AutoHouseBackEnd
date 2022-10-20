@@ -2,8 +2,11 @@ package pl.autohouse.autohousebackend.device;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import net.bytebuddy.implementation.bind.annotation.Default;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import pl.autohouse.autohousebackend.room.Room;
 
 import javax.persistence.*;
@@ -36,7 +39,8 @@ public class Device {
     private String name;
     private Long iconId;
     @Transient
-    private Boolean status = false;
+    @Value("${device.status}")
+    private boolean status;
 
     @Column(name = "pin_address")
     @NonNull

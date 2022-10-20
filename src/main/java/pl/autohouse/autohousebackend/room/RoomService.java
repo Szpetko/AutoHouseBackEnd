@@ -85,7 +85,7 @@ public class RoomService {
 
         //Check if the Room exist and throws an exception if so
         if (!roomRepository.existsById(roomId)) {
-            throw new IllegalAccessException("This Room does not exist");
+            throw new IllegalArgumentException("This Room does not exist");
         }
     }
     //Check for repeats in Name
@@ -100,7 +100,7 @@ public class RoomService {
 
         //Check if the Room exist and throws an exception if so
         if (roomByName.isPresent()) {
-            throw new IllegalAccessException("This Room Name is already in use");
+            throw new IllegalArgumentException("This Room Name is already in use");
         }
     }
 

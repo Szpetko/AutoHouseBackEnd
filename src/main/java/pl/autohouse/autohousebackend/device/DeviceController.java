@@ -36,7 +36,6 @@ public class DeviceController {
     public void updateDevice(@PathVariable Long deviceId, @RequestBody Device updatedDevice){
         deviceService.updateDevice(deviceId, updatedDevice);
     }
-
     @DeleteMapping("/{deviceId}")
     public void deleteDevice(@PathVariable Long deviceId){
         deviceService.deleteDevice(deviceId);

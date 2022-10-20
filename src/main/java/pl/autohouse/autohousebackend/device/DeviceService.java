@@ -104,6 +104,7 @@ public class DeviceService {
                 !Objects.equals(device.getPinAddress(), updatedDevice.getPinAddress())){
 
             checkIllegalRepeatsInPinAddress(updatedDevice);
+
             device.setPinAddress(updatedDevice.getPinAddress());
         }
 
@@ -121,6 +122,10 @@ public class DeviceService {
         }
     }
 
+
+
+    //FUNCTIONS
+
     //Checks for illegal repeats in PinAddress
     @SneakyThrows
     public void checkIllegalRepeatsInPinAddress(Device device){
@@ -132,7 +137,7 @@ public class DeviceService {
 
         //Check if the Devise exist and throws an exception if so
         if (deviceByPinAddress.isPresent()) {
-            throw new IllegalAccessException("This Pin Address is already in use");
+            throw new IllegalArgumentException("This Pin Address is already in use");
         }
     }
 
@@ -147,7 +152,7 @@ public class DeviceService {
 
         //Check if the Devise exist and throws an exception if so
         if (deviceByNameAndRoomId.isPresent()) {
-            throw new IllegalAccessException("This Name is already in use in this Room");
+            throw new IllegalArgumentException("This Name is already in use in this Room");
         }
     }
 
@@ -162,7 +167,7 @@ public class DeviceService {
 
         //Check if the Devise exist and throws an exception if so
         if (deviceByNameAndRoomId.isPresent()) {
-            throw new IllegalAccessException("There is a Device with the same Name in this Room");
+            throw new IllegalArgumentException("There is a Device with the same Name in this Room");
         }
     }
 
@@ -172,7 +177,7 @@ public class DeviceService {
 
         //Check if the Room exist and throws an exception if so
         if (!roomRepository.existsById(roomId)) {
-            throw new IllegalAccessException("This Room does not exist");
+            throw new IllegalArgumentException("This Room does not exist");
         }
     }
 
@@ -182,10 +187,9 @@ public class DeviceService {
 
         //Throws an exception if Device doesn't exist
         if (!deviceRepository.existsById(deviceId)) {
-            throw new IllegalAccessException("Device with id "+ deviceId +" does not exist");
+            throw new IllegalArgumentException("Device with id "+ deviceId +" does not exist");
         }
     }
-
 
 
 }
