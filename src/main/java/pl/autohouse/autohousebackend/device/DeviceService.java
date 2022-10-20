@@ -123,6 +123,54 @@ public class DeviceService {
     }
 
 
+    //TEMPORARY
+    int i = 0;
+    public boolean toggleStateDevice(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
+
+        System.out.println(device.getStatus());
+        if (i % 2 == 0){
+
+            //TODO PI4J turn DevicePin Low
+            device.setStatus(false);
+            i++;
+            return false;
+        }
+        else {
+            //TODO PI4J turn DevicePin High
+            device.setStatus(true);
+            i++;
+            return true;
+        }
+
+
+    }
+
+    //TEMPORARY
+    public boolean highStateDevice(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
+
+        System.out.println("Start: " + device.getStatus());
+        //TODO PI4J turn DevicePin High
+        device.setStatus(true);
+        System.out.println("Final: " + device.getStatus());
+        return device.getStatus();
+    }
+
+    //TEMPORARY
+    public boolean lowStateDevice(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
+
+
+        System.out.println("Start: " + device.getStatus());
+        //TODO PI4J turn DevicePin Low
+        device.setStatus(false);
+        System.out.println("Final: " + device.getStatus());
+        return device.getStatus();
+    }
 
     //FUNCTIONS
 
