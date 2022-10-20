@@ -40,4 +40,19 @@ public class DeviceController {
     public void deleteDevice(@PathVariable Long deviceId){
         deviceService.deleteDevice(deviceId);
     }
+
+    @PutMapping ("/{deviceId}/toggle")
+    public boolean toggleStateDevice(@PathVariable Long deviceId){
+        return deviceService.toggleStateDevice(deviceId);
+    }
+
+    @PutMapping ("/{deviceId}/stateHigh")
+    public boolean highStateDevice(@PathVariable Long deviceId){
+        return deviceService.highStateDevice(deviceId);
+    }
+
+    @PutMapping ("/{deviceId}/stateLow")
+    public boolean lowStateDevice(@PathVariable Long deviceId){
+        return deviceService.lowStateDevice(deviceId);
+    }
 }
