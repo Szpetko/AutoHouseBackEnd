@@ -1,5 +1,8 @@
 package pl.autohouse.autohousebackend.device;
 
+import com.pi4j.Pi4J;
+import com.pi4j.context.Context;
+import com.pi4j.io.gpio.digital.DigitalState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +19,8 @@ public class DeviceController {
     public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
+
+
 
     @GetMapping
     public List<Device> getDevice() {
@@ -55,4 +60,5 @@ public class DeviceController {
     public boolean lowStateDevice(@PathVariable Long deviceId){
         return deviceService.lowStateDevice(deviceId);
     }
+
 }

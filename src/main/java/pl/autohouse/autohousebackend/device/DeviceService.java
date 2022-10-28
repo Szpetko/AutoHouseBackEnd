@@ -1,11 +1,18 @@
 package pl.autohouse.autohousebackend.device;
 
+import com.pi4j.Pi4J;
+import com.pi4j.context.Context;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import pl.autohouse.autohousebackend.gpio.DigitalOutputGPIO;
 import pl.autohouse.autohousebackend.room.RoomRepository;
 
+import javax.annotation.PreDestroy;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,6 +52,8 @@ public class DeviceService {
         //Check if Room exists by roomId
         checkIfRoomExist(device.getRoomId());
 
+        //TODO Add device to a outputGPIOList
+
         //Adding Device to Database
         deviceRepository.save(device);
     }
@@ -55,6 +64,8 @@ public class DeviceService {
     public void deleteDevice(Long deviceId) {
 
         checkIFDeviceExist(deviceId);
+
+        //TODO delete device form outputGPIOList
 
         //Deleting Device from Database
         deviceRepository.deleteById(deviceId);
@@ -123,26 +134,43 @@ public class DeviceService {
     }
 
 
+    //PI4J
+    Context pi4j = Pi4J.newAutoContext();
+
+    public List<DigitalOutputGPIO> outputGPIOList = new ArrayList<>();
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void createGPIO(){
+        System.out.println("Device Start to initialize");
+        List<Device> devices = deviceRepository.findAll();
+
+        try {
+            for(int i=0; i < devices.size(); i++) {
+                Device device = devices.get(i);
+                int pin = device.getPinAddress();
+                DigitalOutputGPIO temp = new DigitalOutputGPIO(pi4j, pin);
+                outputGPIOList.add(temp);
+                System.out.println("Device initialize pin: " + pin);
+            }
+        }
+        catch (Exception e){
+            System.out.println("Initialize devices error");
+        }
+
+    }
+
     //TEMPORARY
-    int i = 0;
     public boolean toggleStateDevice(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
 
-        System.out.println(device.getStatus());
-        if (i % 2 == 0){
 
-            //TODO PI4J turn DevicePin Low
-            device.setStatus(false);
-            i++;
-            return false;
-        }
-        else {
-            //TODO PI4J turn DevicePin High
-            device.setStatus(true);
-            i++;
-            return true;
-        }
+        //TODO get by pinAddress
+        DigitalOutputGPIO temp = getDGOutputByPinAddress(device);
+        System.out.println(temp.getPinAddress());
+        temp.toggleState();
+
+        return temp.getDigitalOutput().isOff();
 
 
     }
@@ -173,7 +201,24 @@ public class DeviceService {
     }
 
 
+    @PreDestroy
+    private void gpioShutDown(){
+        pi4j.shutdown();
+        System.out.println("Turning off gpio");
+    }
+
+
     //FUNCTIONS
+
+    //Find DigitalOutput from the outputGPIOList by PinAddress
+    public DigitalOutputGPIO getDGOutputByPinAddress(Device device){
+             for(DigitalOutputGPIO digitalOutputGPIO : outputGPIOList){
+                 if (digitalOutputGPIO.getPinAddress() == device.getPinAddress()){
+                     return digitalOutputGPIO;
+                 }
+             }
+             return null;
+    }
 
     //Checks for illegal repeats in PinAddress
     @SneakyThrows
