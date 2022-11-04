@@ -32,12 +32,26 @@ public class DeviceService {
 
     //Getting all Devices and returns List
     public List<Device> getDevice() {
-        return deviceRepository.findAll();
+
+        //Set current status for each Device from the Device List
+        List<Device> deviceList = deviceRepository.findAll();
+        for (Device device : deviceList){
+            DigitalOutputGPIO tempDGOut = getDGOutputByDeviceId(device.getDeviceId());
+            device.setStatus(tempDGOut.getDigitalOutput().isOn());
+        }
+
+        return deviceList;
     }
 
     //Getting Device by ID
     public Object getDeviceById(Long deviceId) {
-        return deviceRepository.findById(deviceId);
+
+        //Set current status of the Device
+        Optional<Device> device = deviceRepository.findById(deviceId);
+        DigitalOutputGPIO tempDGOut = getDGOutputByDeviceId(deviceId);
+        device.get().setStatus(tempDGOut.getDigitalOutput().isOn());
+
+        return device;
     }
 
     //Adds new Device
@@ -52,7 +66,8 @@ public class DeviceService {
         //Check if Room exists by roomId
         checkIfRoomExist(device.getRoomId());
 
-        //TODO Add device to a outputGPIOList
+        //Add device to a outputGPIOList
+        addDeviceToOutputGPIOList(device);
 
         //Adding Device to Database
         deviceRepository.save(device);
@@ -63,9 +78,11 @@ public class DeviceService {
 
     public void deleteDevice(Long deviceId) {
 
+        //Check if Device exists by deviceId
         checkIFDeviceExist(deviceId);
 
-        //TODO delete device form outputGPIOList
+        //Delete device form outputGPIOList
+        outputGPIOList.remove(getDGOutputByDeviceId(deviceId));
 
         //Deleting Device from Database
         deviceRepository.deleteById(deviceId);
@@ -104,10 +121,10 @@ public class DeviceService {
 
         // status
         if (updatedDevice.getStatus() != null &&
-                !Objects.equals(device.getStatus(), updatedDevice.getStatus())){
+                !Objects.equals(getDGOutputByDeviceId(deviceId).getDigitalOutput().isOn(), updatedDevice.getStatus())){
 
-            //TODO toggle device wit deviceId status
-            device.setStatus(updatedDevice.getStatus());
+            //Toggle device wit deviceId status
+            toggleStateDevice(deviceId);
         }
 
         // pinAddress
@@ -137,20 +154,18 @@ public class DeviceService {
     //PI4J
     Context pi4j = Pi4J.newAutoContext();
 
+    //List of DigitalOutputDevices
     public List<DigitalOutputGPIO> outputGPIOList = new ArrayList<>();
 
+    //Initializing devices form the Database and adding them to DigitalOutputDevices List
     @EventListener(ApplicationReadyEvent.class)
     public void createGPIO(){
         System.out.println("Device Start to initialize");
         List<Device> devices = deviceRepository.findAll();
 
         try {
-            for(int i=0; i < devices.size(); i++) {
-                Device device = devices.get(i);
-                int pin = device.getPinAddress();
-                DigitalOutputGPIO temp = new DigitalOutputGPIO(pi4j, pin);
-                outputGPIOList.add(temp);
-                System.out.println("Device initialize pin: " + pin);
+            for (Device device : devices) {
+                addDeviceToOutputGPIOList(device);
             }
         }
         catch (Exception e){
@@ -159,48 +174,37 @@ public class DeviceService {
 
     }
 
-    //TEMPORARY
+    //Toggling Device State
     public boolean toggleStateDevice(Long deviceId) {
-        Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
 
+        //Toggle DevicePin
+        DigitalOutputGPIO temp = getDGOutputByDeviceId(deviceId);
 
-        //TODO get by pinAddress
-        DigitalOutputGPIO temp = getDGOutputByPinAddress(device);
-        System.out.println(temp.getPinAddress());
-        temp.toggleState();
-
-        return temp.getDigitalOutput().isOff();
+        return temp.toggleState();
 
 
     }
 
-    //TEMPORARY
+    //Setting Device State High
     public boolean highStateDevice(Long deviceId) {
-        Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
 
-        System.out.println("Start: " + device.getStatus());
-        //TODO PI4J turn DevicePin High
-        device.setStatus(true);
-        System.out.println("Final: " + device.getStatus());
-        return device.getStatus();
+        //Turn DevicePin High
+        DigitalOutputGPIO temp = getDGOutputByDeviceId(deviceId);
+
+        return temp.stateHigh();
     }
 
-    //TEMPORARY
+    //Setting Device State Low
     public boolean lowStateDevice(Long deviceId) {
-        Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
 
+        //Turn DevicePin Low
+        DigitalOutputGPIO temp = getDGOutputByDeviceId(deviceId);
 
-        System.out.println("Start: " + device.getStatus());
-        //TODO PI4J turn DevicePin Low
-        device.setStatus(false);
-        System.out.println("Final: " + device.getStatus());
-        return device.getStatus();
+        return temp.stateLow();
     }
 
 
+    //Turning off PI4J before shutdown
     @PreDestroy
     private void gpioShutDown(){
         pi4j.shutdown();
@@ -210,14 +214,25 @@ public class DeviceService {
 
     //FUNCTIONS
 
-    //Find DigitalOutput from the outputGPIOList by PinAddress
-    public DigitalOutputGPIO getDGOutputByPinAddress(Device device){
+    //Find DigitalOutput from the outputGPIOList (using pinAddress) by deviceId
+    public DigitalOutputGPIO getDGOutputByDeviceId(Long deviceId){
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Device with id "+ deviceId +" does not exist"));
+
              for(DigitalOutputGPIO digitalOutputGPIO : outputGPIOList){
                  if (digitalOutputGPIO.getPinAddress() == device.getPinAddress()){
                      return digitalOutputGPIO;
                  }
              }
              return null;
+    }
+
+    //Adds Device to OutputGPIOList and initialize Pin by its pinAddress
+    public void  addDeviceToOutputGPIOList(Device device){
+        int pin = device.getPinAddress();
+        DigitalOutputGPIO temp = new DigitalOutputGPIO(pi4j, pin);
+        outputGPIOList.add(temp);
+        System.out.println("Device initialize pin: " + pin);
     }
 
     //Checks for illegal repeats in PinAddress

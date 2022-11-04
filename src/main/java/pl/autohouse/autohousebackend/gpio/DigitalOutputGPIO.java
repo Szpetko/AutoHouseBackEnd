@@ -9,6 +9,9 @@ import java.awt.*;
 
 public class DigitalOutputGPIO extends Component {
 
+    // !!!HIGH and LOW states are switched because LOW state was needed to turn on relay instead of the HIGH state!!!
+    // If there was no switch, all devices would turn on when the power to the raspberry was cut off or raspberry would break down
+
 
     private final DigitalOutput digitalOutput;
     int pinAddress;
@@ -20,13 +23,13 @@ public class DigitalOutputGPIO extends Component {
 
 
     public boolean stateHigh() {
-        digitalOutput.state(DigitalState.HIGH);
+        digitalOutput.state(DigitalState.LOW);
         return digitalOutput.isOn();
     }
 
 
     public boolean stateLow() {
-        digitalOutput.state(DigitalState.LOW);
+        digitalOutput.state(DigitalState.HIGH);
         return digitalOutput.isOn();
     }
 
@@ -53,6 +56,9 @@ public class DigitalOutputGPIO extends Component {
                 .name("Digital Output with pinAddress" + pinAddress)
                 .address(pinAddress)
                 .provider("pigpio-digital-output")
+                .onState(DigitalState.LOW)
+                .initial(DigitalState.HIGH)
+                .shutdown(DigitalState.HIGH)
                 .build();
     }
 }
