@@ -148,6 +148,13 @@ public class DeviceService {
 
             device.setRoomId(updatedDevice.getRoomId());
         }
+
+        // isFavourite
+        if (updatedDevice.getIsFavourite() != null &&
+                !Objects.equals(device.getIsFavourite(), updatedDevice.getIsFavourite())){
+
+            device.setIsFavourite(updatedDevice.getIsFavourite());
+        }
     }
 
 

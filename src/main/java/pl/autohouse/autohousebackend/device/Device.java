@@ -49,6 +49,10 @@ public class Device {
     @Column(name = "room_id")
     private Long roomId;
 
+    @Column(name = "isFavourite")
+    @Value("${device.status}")
+    private Boolean isFavourite;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
